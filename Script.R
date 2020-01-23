@@ -2,6 +2,14 @@ install.packages("shiny")
 library("shiny")
 library(tidyverse)
 library(data.table)
+library(usethis)
+library(devtools)
+
+devtools::install_github("56north/leafletDK")
+# https://github.com/mikkelkrogsholm/leafletDK
+library(leafletDK)
+folk1 <- readr::read_csv2("http://api.statbank.dk/v1/data/folk1a/CSV?OMR%C3%85DE=*")
+municipalityDK("INDHOLD", "OMRÅDE", data = folk1)
 
 data<-read.csv("./data/crime-statistics-of-denmark/Denmark_Crime_Regionwise.csv", stringsAsFactors = F)
 regions<-unique(data$REGION)
@@ -21,7 +29,7 @@ my_server <- function(input, output) {
     my_range <- reactive({
       cbind(input$Year[1],input$Year[2])
     })
-    output[["Overall Crime by regions"]] <- renderText({my_range()})
+    output$Range <- renderText({my_range()})
 
 }
 
@@ -37,7 +45,8 @@ page_one <- tabPanel(
     ),
     mainPanel(
       h3("Primary Content"),
-      p("Plots, data tables, etc. would go here")
+      p("Plots, data tables, etc. would go here"),
+      textOutput("Range")
     )
   )
 )
