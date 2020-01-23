@@ -18,15 +18,11 @@ setnames(data, old = trimesters, new = matchesString)
 my_server <- function(input, output) {
   # Define content to be displayed by the `message` reactive output
   # `renderText()` is passed a reactive expression
-  output$message <- renderText({
-    # A render function block can include any code used in a regular function
-    my_greeting <- "Hello "
-    
-    # Because the render function references an `input` value, it will be
-    # automatically rerun when that value changes, producing an updated output
-    message_str <- paste0(my_greeting, input$username, "!")
-    message_str # return the message to be output
-  })
+    my_range <- reactive({
+      cbind(input$Year[1],input$Year[2])
+    })
+    output[["Overall Crime by regions"]] <- renderText({my_range()})
+
 }
 
 page_one <- tabPanel(
@@ -37,7 +33,7 @@ page_one <- tabPanel(
   sidebarLayout(
     sidebarPanel(
       selectInput("Regions","Select the desired region to isolate",c(regions,"All")),
-      sliderInput("Year","Select the desired year",min=2007,max=2019.75,value=2007,step=0.25,c(data$`2007`:data$`2019.5`))
+      sliderInput("Year","Select the desired range of years",min=2007,max=2019.75,value=c(2007,2019.75),step=0.25,textOutput("DualSlider"))
     ),
     mainPanel(
       h3("Primary Content"),
@@ -66,6 +62,12 @@ ui <- navbarPage(
   page_two,         # include the second page content
   page_three        # include the third page content
 )
+server <- shinyServer(function(input, output, session){
+  my_range <- reactive({
+    cbind(input$range[1],input$range[2])
+  })
+  output$SliderText <- renderText({my_range()})
+})
 shinyApp(ui = ui, server = my_server)
 Who is overall crime evolution in the whole Denmark & in specific municipalities
 
