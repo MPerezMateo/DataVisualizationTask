@@ -23,16 +23,15 @@ library(leaflet)
 library(demogR)
 library(dplyr)
 # https://github.com/mikkelkrogsholm/leafletDK
-devtools::install_github("56north/leafletDK")
 library(leafletDK)
 library(treemap)
 library(d3heatmap)
 library(rsconnect)
 library(sp)
 
-data<-read.csv("./data/Denmark_Crime_Regionwise.csv",stringsAsFactors = F)
+data<-read.csv("data/Denmark_Crime_Regionwise.csv",stringsAsFactors = F,fileEncoding='ISO-8859-1')
 colnames(data)
-population<-read.csv("./data/Denmark_Population.csv", stringsAsFactors = F)
+population<-read.csv("data/Denmark_Population.csv", stringsAsFactors = F,fileEncoding='ISO-8859-1')
 trimesters<-colnames(data)[3:(ncol(data))]
 
 match<- function(dataset){
