@@ -5,8 +5,8 @@ account: mperezmateo
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1711568
-bundleId: 2756790
+bundleId: 2756824
 url: https://mperezmateo.shinyapps.io/DataVisualizationTask/
-when: 1580159070.58445
+when: 1580159784.40978
 asMultiple: FALSE
 asStatic: FALSE
