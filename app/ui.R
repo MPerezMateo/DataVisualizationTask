@@ -1,6 +1,9 @@
 page_one <- tabPanel(
-  titlePanel("Overall Crime by municipalities"), # show with a displayed title
-  
+  "Overall Crime by municipalities", # show with a displayed title
+  tags$head(
+    # Include our custom CSS
+    includeCSS("style.css")
+  ),
   # This content uses a sidebar layout
   sidebarLayout(
     sidebarPanel(
@@ -27,14 +30,17 @@ page_one <- tabPanel(
     mainPanel(
       h3("Penalty Crimes commited in each quatrimester, per 1k habitants"),
       leafletOutput("map"),
-      plotOutput(outputId = "histoPlot")
-    )
+      plotOutput(outputId = "histoPlot"))
   )
 )
 
 # Define content for the second page
 page_two <- tabPanel(
-  titlePanel("Heatmap by Crimes & Regions"), # show with a displayed title
+  "Heatmap by Crimes & Regions", # show with a displayed title
+  tags$head(
+    # Include our custom CSS
+    includeCSS("style.css")
+  ),
   sidebarLayout(
     sidebarPanel(
       selectInput(
@@ -71,7 +77,11 @@ page_two <- tabPanel(
 
 
 page_three <- tabPanel(
-  titlePanel("Treemap of Crimes per Region in a Year"),
+  "Treemap of Crimes per Region in a Year",
+  tags$head(
+    # Include our custom CSS
+    includeCSS("style.css")
+  ),
   sidebarLayout(
     sidebarPanel(
       selectInput(
@@ -95,7 +105,8 @@ page_three <- tabPanel(
 
 # Pass each page to a multi-page layout (`navbarPage`)
 ui <- navbarPage(
-  titlePanel("Crimes in Denmark"), # application title
+  "Crimes in Denmark", # application title
+  id="nav",
   page_one,
   page_two,
   page_three

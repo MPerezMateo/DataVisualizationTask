@@ -4,7 +4,6 @@ function(input, output, session) {
   #my_range <- reactive({
   #  cbind(input$Year[1],input$Year[2])
   #})
-  #output$Range <- renderText({my_range()})
   observe({
     my_legend <- reactive({
       if(length(input$icons) ==0) FALSE
@@ -23,14 +22,14 @@ function(input, output, session) {
                      legend = my_legend(),map = my_strmap(), legendtitle = "Crimes per 1k habitant")
       
     })
-    output$histoPlot <- renderPlot({
-      x  <- seq(2008,2019.5,by = 0.25)
-      y  <- as.numeric(crime_rates %>%
-                         filter(REGION==paste0(input$Region)) %>%
-                         select(-REGION))
-      
-      plot(x, y, type = "b", col = "red", xlab = "Years by trimester", ylab = "Crimes per 1k habitants")
-    })
+      output$histoPlot <- renderPlot({
+        x  <- seq(2008,2019.5,by = 0.25)
+        y  <- as.numeric(crime_rates %>%
+                           filter(REGION==paste0(input$Region)) %>%
+                           select(-REGION))
+        
+        plot(x, y, type = "b", col = "red", xlab = "Years by trimester", ylab = "Crimes per 1k habitants")
+      })
   })
   # PAGE THREE #######################################
   output$crimePlot <- renderPlot({
