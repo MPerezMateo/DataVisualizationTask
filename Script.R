@@ -7,7 +7,7 @@ install.packages("devtools")
 install.packages("leaflet")
 install.packages("demogR")
 
-library("shiny")
+library(shiny)
 library(tidyverse)
 library(RColorBrewer)
 library(scales)
@@ -195,7 +195,7 @@ my_server <- function(input, output) {
     output$map <- renderLeaflet({
       if(input$Region != "All Denmark") municip<-input$Region
       else{ municip<-NULL}
-        municipalityDK(paste0(input$Year[1]),"REGION",subplot =municip, data = crime_rates,
+        municipalityDK(paste(input$Year[1]),"REGION",subplot = municip, data = crime_rates,
                        legend = my_legend(),map = my_strmap(), legendtitle = "Crimes per 1k habitant")
 
     })
@@ -205,10 +205,7 @@ my_server <- function(input, output) {
         filter(REGION==paste0(input$Region)) %>%
         select(-REGION))
       
-      #hist(x, breaks = bins, col = "#75AADB", border = "white",
-      #     xlab = "Trimesters of the years",
-      #     main = "Histogram of waiting times")
-      plot(x, y, type = "b", col = "red", xlab = "x", ylab = "y")
+      plot(x, y, type = "b", col = "red", xlab = "Years by trimester", ylab = "Crimes per 1k habitants")
     })
     output$crimePlot <- renderPlot({
       
@@ -244,14 +241,14 @@ my_server <- function(input, output) {
     })
     
     # PAGE FOUR #######################################
-    observe({
-      selectedCrimesMatrix <- denmarkCrimesMatrix[input$crime, ] 
-      
-      output$treemap <- renderPlot({
-        crimesScaled <- as.matrix(scale(selectedCrimesMatrix))
-        # heatmap(crimesScaled, Colv = NA, Rowv = NA, scale="column", xaxis.rot=0)
-      })
-    })
+    #observe({
+    #  selectedCrimesMatrix <- denmarkCrimesMatrix[input$crime, ] 
+    #  
+    #  output$treemap <- renderPlot({
+    #    crimesScaled <- as.matrix(scale(selectedCrimesMatrix))
+    #    # heatmap(crimesScaled, Colv = NA, Rowv = NA, scale="column", xaxis.rot=0)
+    #  })
+    #})
 }
 
 page_one <- tabPanel(
@@ -360,8 +357,8 @@ ui <- navbarPage(
   "Crimes in Denmark", # application title
   page_one,         # include the first page content
   page_two,         # include the second page content
-  page_three,       # include the third page content
-  page_four
+  page_three       # include the third page content
+  # page_four
 )
 
 shinyApp(ui = ui, server = my_server)
