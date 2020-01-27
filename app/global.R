@@ -106,7 +106,7 @@ names(crime_types_macroregions)[5] <- "Offences against property"
 names(crime_types_macroregions)[6] <- "Other offences"
 names(crime_types_macroregions)[6] <- "Special acts"
 
-crime_types_macroregions$REGION <- c("Hovedstaden", "Midtjylland","Nordjylland", "Sjalland","Syddanmark")
+crime_types_macroregions$REGION <- c("Hovedstaden", "Midtjylland","Nordjylland", "Sjaelland","Syddanmark")
 
 #################################
 #################################
