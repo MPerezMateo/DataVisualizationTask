@@ -4,7 +4,14 @@ page_one <- tabPanel(
   # This content uses a sidebar layout
   sidebarLayout(
     sidebarPanel(
-      selectInput("Region","Select the desired municipality to isolate",unique(population$REGION),selected="All Denmark"),
+      selectizeInput(
+        "Region",
+        "Sel the desired municipalites",
+        unique(population$REGION),
+        multiple = TRUE,
+        selected ="All Denmark",
+        options = list(maxItems=length(unique(population$REGION)))
+      ),
       sliderInput("Year","Select the desired range of years",min=2008,max=2019.5,value=c(2008),step=0.25,textOutput("DualSlider")),
       checkboxGroupInput("icons", "Choose options:",
                          choiceNames =
