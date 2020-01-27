@@ -1,4 +1,3 @@
-
 page_one <- tabPanel(
   titlePanel("Overall Crime by municipalities"), # show with a displayed title
   
@@ -30,9 +29,15 @@ page_two <- tabPanel(
   titlePanel("Heatmap by Crimes & Regions"), # show with a displayed title
   sidebarLayout(
     sidebarPanel(
+      selectInput(
+        "plotType",
+        "Select the plot type:",
+        c(HeatMap = "heatmap", BarPlot = "barplot"),
+        selected="heatmap"
+      ),
       selectizeInput(
         "regions",
-        "Regions (max. 5)",
+        "Regions (max. 5):",
         unique(denmarkCrimesTotal$REGION),
         multiple = TRUE,
         selected = c("Copenhagen", "Frederiksberg"),
@@ -40,61 +45,41 @@ page_two <- tabPanel(
       ),
       selectizeInput(
         "crimes",
-        "Crimes (max. 10)",
+        "Crimes (max. 10):",
         unique(denmarkCrimesTotal$TYPE.OF.OFFENCE),
         multiple = TRUE,
         options = list(maxItems = 10),
         selected = c("Penal Code, total", "Sexual offenses, total", "Rape, etc.", "Prostitution, etc.", "Homicide", "Common assault")
-      ),
-      selectInput(
-        "year",
-        "Years",
-        2008:2019,
-        selected = 2019)
+      )
     ),
     mainPanel(
       h3("Heatmap by Crimes & Regions"),
-      plotOutput("heatmap", height = "600px")
+      plotOutput("plot3")  
     )
   )
 )
 
 # Define content for the third page
-page_three <- tabPanel(
-  titlePanel("Crimes by regions"),
-  sidebarLayout(      
-    sidebarPanel(
-      selectInput("crime", "Crime:", 
-                  choices=colnames(crime_types_macroregions[,-c(1)])),
-      hr(),
-      helpText("Choose the type of crime to see how it is spread in the 5 macroregions of Denmark")
-    ),
-    
-    # Create a spot for the barplot
-    mainPanel(
-      plotOutput("crimePlot")  
-    )
-  )
-)
 
-page_four <- tabPanel(
+
+page_three <- tabPanel(
   titlePanel("Treemap of Crimes per Region in a Year"),
   sidebarLayout(
     sidebarPanel(
       selectInput(
-        "reg",
+        "region",
         "Region",
         unique(denmarkCrimesTotal$REGION),
         selected = "Copenhagen"
       ),
       selectInput(
-        "year",
+        "yeartree",
         "Year",
         2008:2019,
         selected = 2019)
     ),
     mainPanel(
-      h3("Heatmap by Crimes & Regions"),
+      h3("Treemap of Crimes by regions and municipalities"),
       plotOutput("treemap", height = "600px")
     )
   )
@@ -102,10 +87,8 @@ page_four <- tabPanel(
 
 # Pass each page to a multi-page layout (`navbarPage`)
 ui <- navbarPage(
-  "Crimes in Denmark", # application title
-  page_one,         # include the first page content
-  page_two,         # include the second page content
-  page_three,       # include the third page content
-  page_four
+  titlePanel("Crimes in Denmark"), # application title
+  page_one,
+  page_two,
+  page_three
 )
-

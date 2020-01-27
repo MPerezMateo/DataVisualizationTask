@@ -1,0 +1,12 @@
+name: DataVisualizationTask
+title: DataVisualizationTask
+username:
+account: mperezmateo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1711568
+bundleId: 2756727
+url: https://mperezmateo.shinyapps.io/DataVisualizationTask/
+when: 1580157514.48555
+asMultiple: FALSE
+asStatic: FALSE

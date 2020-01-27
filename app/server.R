@@ -1,5 +1,3 @@
-
-
 function(input, output, session) {
   # Define content to be displayed by the `message` reactive output
   # `renderText()` is passed a reactive expression
@@ -48,33 +46,52 @@ function(input, output, session) {
   # PAGE TWO #######################################
   observe({
     # selectedCrimesMatrix <- df[is.element(df$TYPE.OF.OFFENCE, input$crimes), is.element(df$REGION, input$regions), ]
+
+    selectedCrimesMatrix <- denmarkCrimesMatrix[input$crimes, input$regions]
+    selectedCrimesDF <- filter(denmarkCrimesTotal, TYPE.OF.OFFENCE %in% input$crimes, REGION %in% input$regions)
     
-    selectedCrimesMatrix <- filter(df, TYPE.OF.OFFENCE %in% input$crimes, REGION %in% input$regions)
-    
-    output$heatmap <- renderPlot({
-      # crimesScaled <- as.matrix(scale(selectedCrimesMatrix))
-      # heatmap(crimesScaled, scale="column")
-      ggplot(selectedCrimesMatrix,aes(x=REGION,y=TYPE.OF.OFFENCE,fill=TOTAL))+
-        geom_tile(colour="white",size=0.25)+
-        scale_fill_distiller(palette = "Spectral")+
-        labs(x="",y="")+
-        theme_grey(base_size=8)+
-        theme(
-          legend.text=element_text(face="bold"),
-          axis.ticks=element_line(size=0.4),
-          plot.background=element_blank(),
-          panel.border=element_blank())
-    })
+    if (input$plotType == "heatmap") {
+      output$plot3 <- renderPlot({
+        ggplot(selectedCrimesDF,aes(x=REGION,y=TYPE.OF.OFFENCE,fill=TOTAL))+
+          geom_tile(colour="white",size=0.25)+
+          scale_fill_distiller(palette = "Spectral")+
+          labs(x="",y="")+
+          theme_grey(base_size=8)+
+          theme(
+            text = element_text(size=18),
+            legend.text=element_text(face="bold"),
+            axis.ticks=element_line(size=0.4),
+            plot.background=element_blank(),
+            panel.border=element_blank())
+
+      })
+    } else {
+      output$plot3 <- renderPlot({
+        ggplot(data=selectedCrimesDF, aes(x=REGION, y=TOTAL, fill=TYPE.OF.OFFENCE)) +
+          geom_bar(stat="identity", color="black", position=position_dodge())+
+          theme(
+            text = element_text(size=18),
+            legend.text=element_text(face="bold"),
+            axis.ticks=element_line(size=0.4))+
+          scale_fill_brewer(palette="Spectral")
+      })
+    }
   })
   
   # PAGE FOUR #######################################
-  
-  #observe({
-  #  selectedCrimesMatrix <- denmarkCrimesMatrix[input$crime, ] 
-  
-  #  output$treemap <- renderPlot({
-  #  crimesScaled <- as.matrix(scale(selectedCrimesMatrix))
-  ### Treemap pending
-  #  })
-  #})
+  observe({
+    y<-input$yeartree
+    selectedCrimesDF <- denmarkCrimesByYear[c("REGION", "TYPE.OF.OFFENCE", y)]
+    names(selectedCrimesDF)[names(selectedCrimesDF) == y] <- "TOTAL"
+    selectedCrimesDF <- filter(selectedCrimesDF, REGION == input$region)
+    
+    output$treemap <- renderPlot({
+      treemap(selectedCrimesDF,
+              index=c("TYPE.OF.OFFENCE"),
+              vSize="TOTAL",
+              type="index",
+              palette = "Spectral"
+      )
+    })
+  })
 }

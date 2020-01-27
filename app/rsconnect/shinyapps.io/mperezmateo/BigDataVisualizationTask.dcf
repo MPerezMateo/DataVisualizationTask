@@ -1,0 +1,12 @@
+name: BigDataVisualizationTask
+title: BigDataVisualizationTask
+username:
+account: mperezmateo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1711520
+bundleId: 2756713
+url: https://mperezmateo.shinyapps.io/BigDataVisualizationTask/
+when: 1580156964.74818
+asMultiple: FALSE
+asStatic: FALSE

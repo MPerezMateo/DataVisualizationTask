@@ -7,6 +7,7 @@
 #install.packages("leaflet")
 #install.packages("demogR")
 #install.packages("treemap")
+#install.packages('rsconnect')
 
 library(shiny)
 library(tidyverse)
@@ -22,8 +23,12 @@ library(leaflet)
 library(demogR)
 library(dplyr)
 # https://github.com/mikkelkrogsholm/leafletDK
+devtools::install_github("56north/leafletDK")
 library(leafletDK)
 library(treemap)
+library(d3heatmap)
+library(rsconnect)
+library(sp)
 
 data<-read.csv("./data/Denmark_Crime_Regionwise.csv",stringsAsFactors = F)
 colnames(data)
