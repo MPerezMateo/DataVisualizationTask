@@ -13,7 +13,8 @@ page_one <- tabPanel(
                          #tags$span(icon("clipboard-list"),(" One or two regions"))),
                          # A optional bool for single year would be cool
                          choiceValues =
-                           list("strmap", "legend")# ,"oneortwo")
+                           list("strmap", "legend"),
+                         selected = list("strmap", "legend")
       ),
     ),
     mainPanel(
