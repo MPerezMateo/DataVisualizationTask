@@ -1,286 +1,34 @@
-library(dplyr)
-# library(usethis)
-library(devtools)
-library(tidyverse)
-library(data.table)
+#install.packages("shiny")
+#devtools::install_github("56north/leafletDK")
+#install.packages("tidyverse")
+#install.packages("data.table")
+#install.packages("usethis")
+#install.packages("devtools")
+#install.packages("leaflet")
+#install.packages("demogR")
+#install.packages("treemap")
 
-devtools::install_github("56north/leafletDK")
+library(shiny)
+library(tidyverse)
+library(RColorBrewer)
+library(scales)
+library(lattice)
+library(dplyr)
+library(viridis)
+library(data.table)
+library(usethis)
+library(devtools)
+library(leaflet)
+library(demogR)
+library(dplyr)
 # https://github.com/mikkelkrogsholm/leafletDK
 library(leafletDK)
+library(treemap)
 
-varsBefore2012 <- c(
-  "Nature of the offence, total" = "Nature of the offence, total",
-  "Penal Code, total" = "Penal Code, total",
-  "Penal code, unspecified" = "Penal code, unspecified",
-  "Sexual offenses, total" = "Sexual offenses, total",
-  "Incest, etc." = "Incest, etc.",
-  "Rape, etc." = "Rape, etc.",
-  "Heterosexual offence against a child under 12" = "Heterosexual offence against a child under 12",
-  "Any other kind of heterosexual offence" = "Any other kind of heterosexual offence",
-  "Homosexual offence against a child under 12" = "Homosexual offence against a child under 12",
-  "Any other kind of homosexual offence" = "Any other kind of homosexual offence",
-  "Offence against public decency by groping" = "Offence against public decency by groping",
-  "Offence against public decency by indecent exposure" = "Offence against public decency by indecent exposure",
-  "Any other kind of offence against public decency" = "Any other kind of offence against public decency",
-  "Prostitution, etc." = "Prostitution, etc.",
-  "Crimes of violence, total" = "Crimes of violence, total",
-  "Violence against public authority" = "Violence against public authority",
-  "Unlawful assembly/disturbance of public order" = "Unlawful assembly/disturbance of public order",
-  "Homicide" = "Homicide",
-  "Attempted homicide" = "Attempted homicide",
-  "Coercive control" = "Coercive control",
-  "Common assault" = "Common assault",
-  "Assault causing actual bodily harm" = "Assault causing actual bodily harm",
-  "Particularly aggravated assault" = "Particularly aggravated assault",
-  "Unprovoked assault" = "Unprovoked assault",
-  "Any other kind of intentional trespass to the person" = "Any other kind of intentional trespass to the person",
-  "Intentional bodily harm" = "Intentional bodily harm",
-  "Causing death or bodily harm by negligence" = "Causing death or bodily harm by negligence",
-  "Offences against life and limb" = "Offences against life and limb",
-  "Offences against personal liberty" = "Offences against personal liberty",
-  "Threats" = "Threats",
-  "Offences against property, total" = "Offences against property, total",
-  "Forgery" = "Forgery",
-  "Cheque forgery" = "Cheque forgery",
-  "Arson" = "Arson",
-  "Burglary - business and community" = "Burglary - business and community",
-  "Residential burglaries" = "Residential burglaries",
-  "Burglary (uninhabited buildings)" = "Burglary (uninhabited buildings)",
-  "Theft from conveyances" = "Theft from conveyances",
-  "Shoplifting, etc." = "Shoplifting, etc.",
-  "Other kinds of theft" = "Other kinds of theft",
-  "Theft of/taking vehicle without the owners consent (TWOC)" = "Theft of/taking vehicle without the owners consent (TWOC)",
-  "Theft of/taking moped without the owners consent (TWOC)" = "Theft of/taking moped without the owners consent (TWOC)",
-  "Theft of/taking bicycle without the owners consent (TWOC)" = "Theft of/taking bicycle without the owners consent (TWOC)",
-  "Theft of/taking other objects without the owners consent (TWOC)" = "Theft of/taking other objects without the owners consent (TWOC)",
-  "Theft by finding" = "Theft by finding",
-  "Embezzlement" = "Embezzlement",
-  "Fraud" = "Fraud",
-  "Fraud by cheque" = "Fraud by cheque",
-  "Fraud by abuse of position" = "Fraud by abuse of position",
-  "Blackmail and usury" = "Blackmail and usury",
-  "Fraud against creditors" = "Fraud against creditors",
-  "Handling stolen goods" = "Handling stolen goods",
-  "Robbery" = "Robbery",
-  "Aggravated tax evasion etc." = "Aggravated tax evasion etc.",
-  "Malicious damage to property" = "Malicious damage to property",
-  "Receiving stolen goods by negligence" = "Receiving stolen goods by negligence",
-  "Offence against and infringement of property" = "Offence against and infringement of property",
-  "Other offences, total" = "Other offences, total",
-  "Offences against public authority, etc." = "Offences against public authority, etc.",
-  "Offences by public servants" = "Offences by public servants",
-  "Perjury" = "Perjury",
-  "Any other kind of false statement" = "Any other kind of false statement",
-  "Offences concerning money and evidence" = "Offences concerning money and evidence",
-  "Trafficking of drugs, etc." = "Trafficking of drugs, etc.",
-  "Smuggling etc. of drugs" = "Smuggling etc. of drugs",
-  "General public offences etc." = "General public offences etc.",
-  "Illegal trade, etc." = "Illegal trade, etc.",
-  "Family relation offences" = "Family relation offences",
-  "Involuntary manslaughter etc. in connection with traffic accident" = "Involuntary manslaughter etc. in connection with traffic accident",
-  "Non-molestation order" = "Non-molestation order",
-  "Invasion of privacy and defamation" = "Invasion of privacy and defamation",
-  "Special acts, total" = "Special acts, total",
-  "Euphoriants Act" = "Euphoriants Act",
-  "The Offensive Weapons Act" = "The Offensive Weapons Act",
-  "Tax legislation and fiscal acts, etc." = "Tax legislation and fiscal acts, etc.",
-  "Other special acts in criminal law" = "Other special acts in criminal law",
-  "Health and social security legislation" = "Health and social security legislation",
-  "Building and housing legislation" = "Building and housing legislation",
-  "The environmental protection act" = "The environmental protection act",
-  "Legislation on animals, hunting, etc." = "Legislation on animals, hunting, etc.",
-  "Legislation on employment, transport, etc." = "Legislation on employment, transport, etc.",
-  "The Companies Act" = "The Companies Act",
-  "Legislation on the national defence" = "Legislation on the national defence",
-  "Legislation applying to public utilities" = "Legislation applying to public utilities",
-  "Legislation on gambling, licencing, trade" = "Legislation on gambling, licencing, trade",
-  "Any other special legislation" = "Any other special legislation",
-  "Special legislation, unspecified'" = "Special legislation, unspecified"
-)
-
-varsAfter2012Before2013 <- c(
-  "Nature of the offence, total" = "Nature of the offence, total",
-  "Penal Code, total" = "Penal Code, total",
-  "Penal code, unspecified" = "Penal code, unspecified",
-  "Sexual offenses, total" = "Sexual offenses, total",
-  "Incest, etc." = "Incest, etc.",
-  "Rape, etc." = "Rape, etc.",
-  "Heterosexual offence against a child under 12" = "Heterosexual offence against a child under 12",
-  "Any other kind of heterosexual offence" = "Any other kind of heterosexual offence",
-  "Homosexual offence against a child under 12" = "Homosexual offence against a child under 12",
-  "Any other kind of homosexual offence" = "Any other kind of homosexual offence",
-  "Offence against public decency by groping" = "Offence against public decency by groping",
-  "Offence against public decency by indecent exposure" = "Offence against public decency by indecent exposure",
-  "Any other kind of offence against public decency" = "Any other kind of offence against public decency",
-  "Prostitution, etc." = "Prostitution, etc.",
-  "Crimes of violence, total" = "Crimes of violence, total",
-  "Violence against public authority" = "Violence against public authority",
-  "Unlawful assembly/disturbance of public order" = "Unlawful assembly/disturbance of public order",
-  "Homicide" = "Homicide",
-  "Attempted homicide" = "Attempted homicide",
-  "Coercive control" = "Coercive control",
-  "Common assault" = "Common assault",
-  "Assault causing actual bodily harm" = "Assault causing actual bodily harm",
-  "Particularly aggravated assault" = "Particularly aggravated assault",
-  "Unprovoked assault" = "Unprovoked assault",
-  "Any other kind of intentional trespass to the person" = "Any other kind of intentional trespass to the person",
-  "Intentional bodily harm" = "Intentional bodily harm",
-  "Causing death or bodily harm by negligence" = "Causing death or bodily harm by negligence",
-  "Offences against life and limb" = "Offences against life and limb",
-  "Offences against personal liberty" = "Offences against personal liberty",
-  "Threats" = "Threats",
-  "Offences against property, total" = "Offences against property, total",
-  "Forgery" = "Forgery",
-  "Cheque forgery" = "Cheque forgery",
-  "Arson" = "Arson",
-  "Burglary - business and community" = "Burglary - business and community",
-  "Residential burglaries" = "Residential burglaries",
-  "Burglary (uninhabited buildings)" = "Burglary (uninhabited buildings)",
-  "Theft from conveyances" = "Theft from conveyances",
-  "Shoplifting, etc." = "Shoplifting, etc.",
-  "Other kinds of theft" = "Other kinds of theft",
-  "Theft of/taking vehicle without the owners consent (TWOC)" = "Theft of/taking vehicle without the owners consent (TWOC)",
-  "Theft of/taking moped without the owners consent (TWOC)" = "Theft of/taking moped without the owners consent (TWOC)",
-  "Theft of/taking bicycle without the owners consent (TWOC)" = "Theft of/taking bicycle without the owners consent (TWOC)",
-  "Theft of/taking other objects without the owners consent (TWOC)" = "Theft of/taking other objects without the owners consent (TWOC)",
-  "Theft by finding" = "Theft by finding",
-  "Embezzlement" = "Embezzlement",
-  "Fraud" = "Fraud",
-  "Fraud by cheque" = "Fraud by cheque",
-  "Fraud by abuse of position" = "Fraud by abuse of position",
-  "Blackmail and usury" = "Blackmail and usury",
-  "Fraud against creditors" = "Fraud against creditors",
-  "Handling stolen goods" = "Handling stolen goods",
-  "Robbery" = "Robbery",
-  "Aggravated tax evasion etc." = "Aggravated tax evasion etc.",
-  "Malicious damage to property" = "Malicious damage to property",
-  "Receiving stolen goods by negligence" = "Receiving stolen goods by negligence",
-  "Offence against and infringement of property" = "Offence against and infringement of property",
-  "Other offences, total" = "Other offences, total",
-  "Offences against public authority, etc." = "Offences against public authority, etc.",
-  "Offences by public servants" = "Offences by public servants",
-  "Perjury" = "Perjury",
-  "Any other kind of false statement" = "Any other kind of false statement",
-  "Offences concerning money and evidence" = "Offences concerning money and evidence",
-  "Trafficking of drugs, etc." = "Trafficking of drugs, etc.",
-  "Smuggling etc. of drugs" = "Smuggling etc. of drugs",
-  "General public offences etc." = "General public offences etc.",
-  "Illegal trade, etc." = "Illegal trade, etc.",
-  "Family relation offences" = "Family relation offences",
-  "Involuntary manslaughter etc. in connection with traffic accident" = "Involuntary manslaughter etc. in connection with traffic accident",
-  "Invasion of privacy and defamation" = "Invasion of privacy and defamation",
-  "Special acts, total" = "Special acts, total",
-  "Euphoriants Act" = "Euphoriants Act",
-  "The Offensive Weapons Act" = "The Offensive Weapons Act",
-  "Tax legislation and fiscal acts, etc." = "Tax legislation and fiscal acts, etc.",
-  "Other special acts in criminal law" = "Other special acts in criminal law",
-  "Health and social security legislation" = "Health and social security legislation",
-  "Building and housing legislation" = "Building and housing legislation",
-  "The environmental protection act" = "The environmental protection act",
-  "Legislation on animals, hunting, etc." = "Legislation on animals, hunting, etc.",
-  "Legislation on employment, transport, etc." = "Legislation on employment, transport, etc.",
-  "The Companies Act" = "The Companies Act",
-  "Legislation on the national defence" = "Legislation on the national defence",
-  "Legislation applying to public utilities" = "Legislation applying to public utilities",
-  "Legislation on gambling, licencing, trade" = "Legislation on gambling, licencing, trade",
-  "Any other special legislation" = "Any other special legislation",
-  "Special legislation, unspecified'" = "Special legislation, unspecified"
-)
-
-varsAfter2013 <- c(
-  "Nature of the offence, total" = "Nature of the offence, total",
-  "Penal Code, total" = "Penal Code, total",
-  "Penal code, unspecified" = "Penal code, unspecified",
-  "Sexual offenses, total" = "Sexual offenses, total",
-  "Incest, etc." = "Incest, etc.",
-  "Rape, etc." = "Rape, etc.",
-  "Sexual offence against a child under 12" = "Sexual offence against a child under 12",
-  "Sexual offence against a child under 15" = "Sexual offence against a child under 15",
-  "Any other kind of sexual offence" = "Any other kind of sexual offence",
-  "Offence against public decency by groping" = "Offence against public decency by groping",
-  "Offence against public decency by indecent exposure" = "Offence against public decency by indecent exposure",
-  "Any other kind of offence against public decency" = "Any other kind of offence against public decency",
-  "Prostitution, etc." = "Prostitution, etc.",
-  "Crimes of violence, total" = "Crimes of violence, total",
-  "Violence against public authority" = "Violence against public authority",
-  "Unlawful assembly/disturbance of public order" = "Unlawful assembly/disturbance of public order",
-  "Homicide" = "Homicide",
-  "Attempted homicide" = "Attempted homicide",
-  "Coercive control" = "Coercive control",
-  "Common assault" = "Common assault",
-  "Assault causing actual bodily harm" = "Assault causing actual bodily harm",
-  "Particularly aggravated assault" = "Particularly aggravated assault",
-  "Unprovoked assault" = "Unprovoked assault",
-  "Any other kind of intentional trespass to the person" = "Any other kind of intentional trespass to the person",
-  "Intentional bodily harm" = "Intentional bodily harm",
-  "Causing death or bodily harm by negligence" = "Causing death or bodily harm by negligence",
-  "Offences against life and limb" = "Offences against life and limb",
-  "Offences against personal liberty" = "Offences against personal liberty",
-  "Threats" = "Threats",
-  "Offences against property, total" = "Offences against property, total",
-  "Forgery" = "Forgery",
-  "Cheque forgery" = "Cheque forgery",
-  "Arson" = "Arson",
-  "Burglary - business and community" = "Burglary - business and community",
-  "Residential burglaries" = "Residential burglaries",
-  "Burglary (uninhabited buildings)" = "Burglary (uninhabited buildings)",
-  "Theft from conveyances" = "Theft from conveyances",
-  "Shoplifting, etc." = "Shoplifting, etc.",
-  "Other kinds of theft" = "Other kinds of theft",
-  "Theft of/taking vehicle without the owners consent (TWOC)" = "Theft of/taking vehicle without the owners consent (TWOC)",
-  "Theft of/taking moped without the owners consent (TWOC)" = "Theft of/taking moped without the owners consent (TWOC)",
-  "Theft of/taking bicycle without the owners consent (TWOC)" = "Theft of/taking bicycle without the owners consent (TWOC)",
-  "Theft of/taking other objects without the owners consent (TWOC)" = "Theft of/taking other objects without the owners consent (TWOC)",
-  "Theft by finding" = "Theft by finding",
-  "Embezzlement" = "Embezzlement",
-  "Fraud" = "Fraud",
-  "Fraud by cheque" = "Fraud by cheque",
-  "Fraud by abuse of position" = "Fraud by abuse of position",
-  "Blackmail and usury" = "Blackmail and usury",
-  "Fraud against creditors" = "Fraud against creditors",
-  "Handling stolen goods" = "Handling stolen goods",
-  "Robbery" = "Robbery",
-  "Aggravated tax evasion etc." = "Aggravated tax evasion etc.",
-  "Malicious damage to property" = "Malicious damage to property",
-  "Receiving stolen goods by negligence" = "Receiving stolen goods by negligence",
-  "Offence against and infringement of property" = "Offence against and infringement of property",
-  "Other offences, total" = "Other offences, total",
-  "Offences against public authority, etc." = "Offences against public authority, etc.",
-  "Offences by public servants" = "Offences by public servants",
-  "Perjury" = "Perjury",
-  "Any other kind of false statement" = "Any other kind of false statement",
-  "Offences concerning money and evidence" = "Offences concerning money and evidence",
-  "Trafficking of drugs, etc." = "Trafficking of drugs, etc.",
-  "Smuggling etc. of drugs" = "Smuggling etc. of drugs",
-  "General public offences etc." = "General public offences etc.",
-  "Illegal trade, etc." = "Illegal trade, etc.",
-  "Family relation offences" = "Family relation offences",
-  "Involuntary manslaughter etc. in connection with traffic accident" = "Involuntary manslaughter etc. in connection with traffic accident",
-  "Invasion of privacy and defamation" = "Invasion of privacy and defamation",
-  "Special acts, total" = "Special acts, total",
-  "Euphoriants Act" = "Euphoriants Act",
-  "The Offensive Weapons Act" = "The Offensive Weapons Act",
-  "Tax legislation and fiscal acts, etc." = "Tax legislation and fiscal acts, etc.",
-  "Other special acts in criminal law" = "Other special acts in criminal law",
-  "Health and social security legislation" = "Health and social security legislation",
-  "Building and housing legislation" = "Building and housing legislation",
-  "The environmental protection act" = "The environmental protection act",
-  "Legislation on animals, hunting, etc." = "Legislation on animals, hunting, etc.",
-  "Legislation on employment, transport, etc." = "Legislation on employment, transport, etc.",
-  "The Companies Act" = "The Companies Act",
-  "Legislation on the national defence" = "Legislation on the national defence",
-  "Legislation applying to public utilities" = "Legislation applying to public utilities",
-  "Legislation on gambling, licencing, trade" = "Legislation on gambling, licencing, trade",
-  "Any other special legislation" = "Any other special legislation",
-  "Special legislation, unspecified'" = "Special legislation, unspecified"
-)
-
-folk1 <- readr::read_csv2("http://api.statbank.dk/v1/data/folk1a/CSV?OMR%C3%85DE=*")
-municipalityDK("INDHOLD", "OMR?DE", data = folk1)
-
-data<-read.csv("./data/Denmark_Crime_Regionwise.csv", stringsAsFactors = F)
-regions<-unique(data$REGION)
-trimesters<-colnames(data)[3:ncol(data)]
+data<-read.csv("./data/Denmark_Crime_Regionwise.csv",stringsAsFactors = F)
+colnames(data)
+population<-read.csv("./data/Denmark_Population.csv", stringsAsFactors = F)
+trimesters<-colnames(data)[3:(ncol(data))]
 
 match<- function(dataset){
   res<-as.integer(regmatches(dataset, gregexpr("[[:digit:]]+", dataset))[[1]])
@@ -289,7 +37,80 @@ match<- function(dataset){
 matches <-unlist(lapply(trimesters,match))
 matchesString<-as.character(matches)
 setnames(data, old = trimesters, new = matchesString)
+popTrimesters<-colnames(population)[2:ncol(population)]
+popMatches <-unlist(lapply(popTrimesters,match))
+setnames(population, old = popTrimesters, new = as.character(popMatches))
+total_crimes<- data %>%
+  dplyr::filter(TYPE.OF.OFFENCE =="Penal Code, total" )
+total_crimes[,3:6]<-NULL
+total_crimes<-total_crimes[c(2:31,33:49,51:72,74:92,94:104),]
+population<-population[c(1,3:32,34:50,52:73,75:93,95:105),-(ncol(population))]
 
+sumation<-colSums(total_crimes[,3:ncol(total_crimes)])
+total_crimes[nrow(total_crimes)+1,1:2]<-c("All Denmark","Penal Code, total")
+total_crimes[nrow(total_crimes),3:ncol(total_crimes)]<-sumation
+total_crimes<-arrange(total_crimes,REGION)
+population<-arrange(population,REGION)
+crime_rates <- cbind(total_crimes[1],1000*total_crimes[,-(1:2)]/population[,-1])
+
+#######################
+#######################
+#### Second Part
+
+#the last rows are about unknown municipality so i shouldn't consider them
+tail(data$REGION)
+nrow(data[data$REGION == "Unknown municipality",])
+
+#adding column sum
+crime_types <- mutate(
+  data,
+  total_number_of_crimes = data %>%
+    select(3:ncol(data)) %>%
+    rowSums/12
+)
+
+#select only the 3 columns I need
+crime_types <- crime_types %>%
+  select(REGION, TYPE.OF.OFFENCE, total_number_of_crimes)
+
+#the columns are the regions
+crime_types <- spread(
+  crime_types,
+  key = TYPE.OF.OFFENCE,
+  value = total_number_of_crimes
+) 
+
+#taking only the general types of crimes
+crime_types <- crime_types[, c(1,47, 72,21,54,59,75)]
+
+
+#taking only the rows of the macroregions
+crime_types_macroregions <- crime_types[73:77,]
+
+#vector of hinabitants
+inhab <- c(1848989,837087,1223894,1326913,590580)
+
+#dividing for number of hinabitants and multipying per 10000
+for (i in (1:nrow(crime_types_macroregions)))
+{
+  for (j in (2:ncol(crime_types_macroregions))) {
+    crime_types_macroregions[i,j] <- crime_types_macroregions[i,j]/inhab[i]*10000
+  }
+}
+
+
+names(crime_types_macroregions)[2] <- "All crimes"
+names(crime_types_macroregions)[3] <- "Sexual offences"
+names(crime_types_macroregions)[4] <- "Crimes of violence"
+names(crime_types_macroregions)[5] <- "Offences against property"
+names(crime_types_macroregions)[6] <- "Other offences"
+names(crime_types_macroregions)[6] <- "Special acts"
+
+crime_types_macroregions$REGION <- c("Hovedstaden", "Midtjylland","Nordjylland", "Sjalland","Syddanmark")
+
+#################################
+#################################
+#########Third and Fourth part
 denmarkCrimesByTrimester <- read.csv("data/Denmark_Crime_Regionwise.csv", header = TRUE, fileEncoding='ISO-8859-1')
 denmarkCrimesByTrimester$LAT <- jitter(denmarkCrimesByTrimester$LAT)
 denmarkCrimesByTrimester$LONG <- jitter(denmarkCrimesByTrimester$LONG)
@@ -347,3 +168,5 @@ denmarkCrimesMatrix <- matrix(0, length(nameRows), length(nameCols), dimnames = 
 
 # fill in the matrix with matrix indexing on row and column names 
 denmarkCrimesMatrix[as.matrix(df[c("TYPE.OF.OFFENCE", "REGION")])] <- df[["TOTAL"]]
+
+

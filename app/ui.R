@@ -1,31 +1,33 @@
+
 page_one <- tabPanel(
-  "Overall Crime by regions", # label for the tab in the navbar
-  titlePanel("Overall Crime by regions"),
+  titlePanel("Overall Crime by municipalities"), # show with a displayed title
   
   # This content uses a sidebar layout
   sidebarLayout(
     sidebarPanel(
-      selectInput("Regions","Select the desired region to isolate",c(regions,"All")),
-      sliderInput("Year","Select the desired range of years",min=2007,max=2019.75,value=c(2007,2019.75),step=0.25,textOutput("DualSlider"))
+      selectInput("Region","Select the desired municipality to isolate",unique(population$REGION),selected="All Denmark"),
+      sliderInput("Year","Select the desired range of years",min=2008,max=2019.5,value=c(2008),step=0.25,textOutput("DualSlider")),
+      checkboxGroupInput("icons", "Choose options:",
+                         choiceNames =
+                           list(tags$span(icon("map"),(" Street-like Map")),
+                                tags$span(icon("sign"),(" Legend"))),
+                         #tags$span(icon("clipboard-list"),(" One or two regions"))),
+                         # A optional bool for single year would be cool
+                         choiceValues =
+                           list("strmap", "legend")# ,"oneortwo")
+      ),
     ),
     mainPanel(
-      h3("Primary Content"),
-      p("Plots, data tables, etc. would go here"),
-      textOutput("Range")
+      h3("Penalty Crimes commited in each quatrimester, per 1k habitants"),
+      leafletOutput("map"),
+      plotOutput(outputId = "histoPlot")
     )
   )
 )
 
 # Define content for the second page
 page_two <- tabPanel(
-  "Specific crimes", # label for the tab in the navbar
-  titlePanel("Specific crimes") # show with a displayed title
-  # ...more content would go here...
-)
-
-# Define content for the third page
-page_three <- tabPanel(
-  "Heatmap by Crimes & Regions",
+  titlePanel("Heatmap by Crimes & Regions"), # show with a displayed title
   sidebarLayout(
     sidebarPanel(
       selectizeInput(
@@ -46,24 +48,41 @@ page_three <- tabPanel(
       ),
       selectInput(
         "year",
-                  "Years",
-                  2008:2019,
-                  selected = 2019)
+        "Years",
+        2008:2019,
+        selected = 2019)
     ),
     mainPanel(
       h3("Heatmap by Crimes & Regions"),
-              plotOutput("heatmap", height = "600px")
-      )
+      plotOutput("heatmap", height = "600px")
+    )
   )
 )
 
 # Define content for the third page
+page_three <- tabPanel(
+  titlePanel("Crimes by regions"),
+  sidebarLayout(      
+    sidebarPanel(
+      selectInput("crime", "Crime:", 
+                  choices=colnames(crime_types_macroregions[,-c(1)])),
+      hr(),
+      helpText("Choose the type of crime to see how it is spread in the 5 macroregions of Denmark")
+    ),
+    
+    # Create a spot for the barplot
+    mainPanel(
+      plotOutput("crimePlot")  
+    )
+  )
+)
+
 page_four <- tabPanel(
-  "Treemap of Crimes per Region in a Year",
+  titlePanel("Treemap of Crimes per Region in a Year"),
   sidebarLayout(
     sidebarPanel(
       selectInput(
-        "region",
+        "reg",
         "Region",
         unique(denmarkCrimesTotal$REGION),
         selected = "Copenhagen"
@@ -81,10 +100,12 @@ page_four <- tabPanel(
   )
 )
 
-navbarPage(
+# Pass each page to a multi-page layout (`navbarPage`)
+ui <- navbarPage(
   "Crimes in Denmark", # application title
   page_one,         # include the first page content
   page_two,         # include the second page content
   page_three,       # include the third page content
-  page_four         # include the four page content
+  page_four
 )
+
